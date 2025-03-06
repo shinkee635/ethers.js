@@ -10,7 +10,7 @@ import { version } from "./_version";
 const logger = new Logger(version);
 
 function getChecksumAddress(address: string): string {
-    if (!isHexString(address, 20)) {
+    if (!isHexString(address, 32)) {
         logger.throwArgumentError("invalid address", "address", address);
     }
 
@@ -18,14 +18,14 @@ function getChecksumAddress(address: string): string {
 
     const chars = address.substring(2).split("");
 
-    const expanded = new Uint8Array(40);
-    for (let i = 0; i < 40; i++) {
+    const expanded = new Uint8Array(64);
+    for (let i = 0; i < 64; i++) {
         expanded[i] = chars[i].charCodeAt(0);
     }
 
     const hashed = arrayify(keccak256(expanded));
 
-    for (let i = 0; i < 40; i += 2) {
+    for (let i = 0; i < 64; i += 2) {
         if ((hashed[i >> 1] >> 4) >= 8) {
             chars[i] = chars[i].toUpperCase();
         }
@@ -81,7 +81,7 @@ export function getAddress(address: string): string {
         logger.throwArgumentError("invalid address", "address", address);
     }
 
-    if (address.match(/^(0x)?[0-9a-fA-F]{40}$/)) {
+    if (address.match(/^(0x)?[0-9a-fA-F]{64}$/)) {
 
         // Missing the 0x prefix
         if (address.substring(0, 2) !== "0x") { address = "0x" + address; }
@@ -102,7 +102,7 @@ export function getAddress(address: string): string {
         }
 
         result = _base36To16(address.substring(4));
-        while (result.length < 40) { result = "0" + result; }
+        while (result.length < 64) { result = "0" + result; }
         result = getChecksumAddress("0x" + result);
 
     } else {
