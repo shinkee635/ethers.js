@@ -14,14 +14,14 @@ function getChecksumAddress(address: string): string {
 
     const chars = address.substring(2).split("");
 
-    const expanded = new Uint8Array(40);
-    for (let i = 0; i < 40; i++) {
+    const expanded = new Uint8Array(64);
+    for (let i = 0; i < 64; i++) {
         expanded[i] = chars[i].charCodeAt(0);
     }
 
     const hashed = getBytes(keccak256(expanded));
 
-    for (let i = 0; i < 40; i += 2) {
+    for (let i = 0; i < 64; i += 2) {
         if ((hashed[i >> 1] >> 4) >= 8) {
             chars[i] = chars[i].toUpperCase();
         }
@@ -120,7 +120,7 @@ export function getAddress(address: string): string {
 
     assertArgument(typeof(address) === "string", "invalid address", "address", address);
 
-    if (address.match(/^(0x)?[0-9a-fA-F]{40}$/)) {
+    if (address.match(/^(0x)?[0-9a-fA-F]{64}$/)) {
 
         // Missing the 0x prefix
         if (!address.startsWith("0x")) { address = "0x" + address; }
@@ -140,7 +140,7 @@ export function getAddress(address: string): string {
         assertArgument(address.substring(2, 4) === ibanChecksum(address), "bad icap checksum", "address", address);
 
         let result = fromBase36(address.substring(4)).toString(16);
-        while (result.length < 40) { result = "0" + result; }
+        while (result.length < 64) { result = "0" + result; }
         return  getChecksumAddress("0x" + result);
     }
 
